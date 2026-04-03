@@ -5,16 +5,15 @@ const ProgressTracker = ({ progress = 0 }) => {
 
   return (
     <div>
-      <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+      <div className="h-2.5 w-full overflow-hidden rounded-full bg-emerald-100">
         <div
-          className="h-full bg-indigo-500 transition-all"
+          className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 transition-all"
           style={{ width: `${clampedProgress}%` }}
         ></div>
       </div>
-      <p className="text-sm text-gray-500 mt-1">{clampedProgress}% complete</p>
+      <p className="mt-2 text-sm font-medium text-slate-500">{clampedProgress}% complete</p>
     </div>
   );
 };
 
 export default ProgressTracker;
-

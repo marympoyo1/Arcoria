@@ -30,37 +30,36 @@ const CourseCard = ({
   };
 
   return (
-    <div className="flex flex-col justify-between bg-white rounded-lg shadow-md pt-8 pb-5 px-5 hover:shadow-lg transition border border-gray-200 relative min-h-[320px]">
-      {/* Floating Badge */}
+    <div className="relative flex min-h-[340px] flex-col justify-between rounded-[1.5rem] border border-emerald-100/80 bg-white p-6 shadow-[0_20px_50px_-30px_rgba(15,23,42,0.28)] transition hover:-translate-y-1 hover:shadow-[0_28px_60px_-28px_rgba(15,23,42,0.3)]">
       {isCompleted && (
-        <span className="absolute top-2 right-2 text-green-600 font-semibold text-xs bg-green-100 px-2 py-0.5 rounded shadow-sm">
-          ✅ Completed
+        <span className="absolute right-4 top-4 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 shadow-sm">
+          Completed
         </span>
       )}
 
-      {/* Content Wrapper */}
-      <div className="mb-4">
-        <h3 className="text-xl font-bold text-green-600 mb-1">{title}</h3>
-        <p className="text-sm text-gray-500 mb-2 uppercase">{level}</p>
-        <p className="text-gray-700 mb-4">{description}</p>
+      <div className="mb-6 space-y-4">
+        <div>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{level}</p>
+          <h3 className="text-2xl font-bold tracking-tight text-slate-900">{title}</h3>
+        </div>
+        <p className="text-sm leading-7 text-slate-600">{description}</p>
         <ProgressTracker progress={progress} />
       </div>
 
-      {/* Button Row (stuck to bottom) */}
-      <div className="flex gap-3 mt-auto">
+      <div className="mt-auto flex flex-col gap-3 sm:flex-row">
         <button
           onClick={onStart}
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+          className="btn-primary px-4 py-3"
         >
-          Start
+          Start Course
         </button>
 
         <button
           onClick={handleCompleteToggle}
-          className={`px-4 py-2 rounded transition ${
+          className={`inline-flex items-center justify-center rounded-full px-4 py-3 text-sm font-semibold transition ${
             isCompleted
-              ? 'bg-red-100 text-red-600 hover:bg-red-200'
-              : 'bg-gray-200 text-green-800 hover:bg-green-300'
+              ? 'border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100'
+              : 'border border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
           }`}
         >
           {isCompleted ? 'Unmark as Complete' : 'Mark as Complete'}
@@ -71,13 +70,3 @@ const CourseCard = ({
 };
 
 export default CourseCard;
-
-
-
-
-
-
-
-
-
-

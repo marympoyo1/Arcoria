@@ -1,27 +1,97 @@
 @import "tailwindcss";
 
-body {
-  margin: 0;
-  font-family: 'Poppins', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@layer base {
+  :root {
+    color: #0f172a;
+    background:
+      radial-gradient(circle at top, rgba(134, 239, 172, 0.22), transparent 34%),
+      linear-gradient(180deg, #f8fcf8 0%, #f1f8f3 52%, #ebf5ee 100%);
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    color: #0f172a;
+    background:
+      radial-gradient(circle at top, rgba(134, 239, 172, 0.22), transparent 34%),
+      linear-gradient(180deg, #f8fcf8 0%, #f1f8f3 52%, #ebf5ee 100%);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  a,
+  button,
+  input,
+  textarea,
+  select {
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease,
+      color 180ms ease,
+      box-shadow 180ms ease,
+      transform 180ms ease;
+  }
+}
+
+@layer components {
+  .page-gradient {
+    @apply min-h-screen bg-[radial-gradient(circle_at_top,_rgba(134,239,172,0.2),_transparent_36%),linear-gradient(180deg,_#f8fcf8_0%,_#f1f8f3_52%,_#ebf5ee_100%)];
+  }
+
+  .page-shell {
+    @apply relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-shell {
+    @apply rounded-[2rem] border border-white/70 bg-white/82 shadow-[0_24px_60px_-34px_rgba(22,101,52,0.18)] backdrop-blur;
+  }
+
+  .panel-card {
+    @apply rounded-[1.5rem] border border-emerald-100/80 bg-white p-5 shadow-[0_18px_40px_-30px_rgba(15,23,42,0.2)];
+  }
+
+  .panel-soft {
+    @apply rounded-[1.5rem] border border-emerald-100/80 bg-emerald-50/72 p-5;
+  }
+
+  .app-heading {
+    @apply text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-950;
+  }
+
+  .app-subheading {
+    @apply text-lg sm:text-xl font-semibold text-emerald-900;
+  }
+
+  .app-body {
+    @apply text-base leading-7 text-slate-700;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-[0_14px_30px_-14px_rgba(22,163,74,0.8)] hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-full border border-emerald-200 bg-white/90 px-5 py-3 text-sm font-semibold text-emerald-800 shadow-sm hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200;
+  }
+
+  .btn-muted {
+    @apply inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-200;
+  }
+
+  .app-input {
+    @apply w-full rounded-2xl border border-emerald-100 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none placeholder:text-slate-400 focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100;
+  }
+
+  .floating-nav {
+    @apply fixed top-24 z-40 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/92 px-4 py-2.5 text-sm font-medium text-emerald-700 shadow-[0_12px_30px_-18px_rgba(22,101,52,0.45)] backdrop-blur hover:bg-white hover:text-emerald-800;
+  }
+
+  .eyebrow {
+    @apply text-xs sm:text-sm font-semibold uppercase tracking-[0.22em] text-emerald-700/85;
+  }
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-
-.outlined-text {
-  color: #facc15; /* Yellow-400 or your highlight color */
-  -webkit-text-stroke: 1px black;
-}
-
-.glow-text {
-  color: #facc15; /* Tailwind yellow-400 */
-  font-weight: 500;
-  text-shadow:
-    0 0 1px #facc15,
-    0 0 2px #facc15;
-}
-

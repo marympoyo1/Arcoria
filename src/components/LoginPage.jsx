@@ -16,14 +16,15 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
-  const [resetPrompt, setResetPrompt] = useState("");
+  const [resetMessage, setResetMessage] = useState("");
+  const [resetError, setResetError] = useState("");
 
   const navigate = useNavigate();
 
   const handleGoogleSignIn = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
-      navigate("/welcome"); // ✅ redirect
+      navigate("/welcome");
     } catch (error) {
       console.error("Google Sign-in Error:", error);
     }
@@ -31,111 +32,153 @@ const LoginPage = () => {
 
   const handleEmailLogin = async () => {
     setLoginError("");
-    setResetPrompt("");
+    setResetMessage("");
+    setResetError("");
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate("/welcome"); // ✅ redirect
+      navigate("/welcome");
     } catch (error) {
       setLoginError("Incorrect email or password.");
-      setResetPrompt("Forgot password?");
     }
   };
 
   const handlePasswordReset = async () => {
-    if (!email) {
-      setResetPrompt("Please enter your email first.");
+    setResetMessage("");
+    setResetError("");
+
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail) {
+      setResetError("Enter your email address first so we know where to send the reset link.");
       return;
     }
+
     try {
-      await sendPasswordResetEmail(auth, email);
-      setResetPrompt("Password reset email sent!");
+      await sendPasswordResetEmail(auth, trimmedEmail);
+      setResetMessage(`Password reset email sent to ${trimmedEmail}.`);
     } catch (err) {
-      setResetPrompt("Error sending reset email.");
+      console.error("Password reset error:", err);
+      setResetError("We couldn't send the reset email. Double-check the email address and try again.");
     }
   };
 
   return (
-    <div className="bg-green-50 min-h-screen flex items-center justify-center px-4 py-10">
-      <div className="flex flex-col lg:flex-row items-center justify-between gap-12 max-w-5xl w-full">
-        {/* Left Section */}
-        <div className="max-w-xl text-left space-y-5">
-          <h2 className="text-4xl font-extrabold text-green-600 leading-tight">
-            Learn Tech. Level Up.
-          </h2>
-          <p className="text-gray-700 text-lg">
-            Build your future with curated tech skill paths powered by YouTube
-            tutorials. Track progress and grow confidently.
-          </p>
-          <ul className="text-md space-y-2 text-gray-800">
-            <li>✅ Easy-to-follow video guides</li>
-            <li>✅ Personalized learning journeys</li>
-            <li>✅ Real-time progress tracking</li>
-          </ul>
+    <div className="page-gradient flex min-h-screen items-center px-4 py-10 sm:py-14">
+      <div className="page-shell">
+        <div className="mx-auto max-w-6xl">
+          <div className="section-shell overflow-hidden">
+            <div className="grid gap-8 p-6 sm:p-8 lg:grid-cols-[0.95fr_0.8fr] lg:p-10">
+              <div className="flex flex-col justify-center gap-8">
+                <div className="space-y-5">
+                  <p className="eyebrow">Arcoria Sign In</p>
+                  <h1 className="text-4xl font-black leading-tight tracking-tight text-slate-950 sm:text-5xl">
+                    Keep moving through your learning arc.
+                  </h1>
+                  <p className="max-w-xl text-lg font-medium leading-8 text-emerald-800">
+                    Learn tech with more structure and a lot less chaos.
+                  </p>
+                  <p className="app-body max-w-xl">
+                    Sign in to keep your learning organized, follow a clearer path, and get extra support whether you're practicing at home or reinforcing what you're learning in school.
+                  </p>
+                </div>
 
-          <img
-            src={teamIllustration}
-            alt="People using Arcoria"
-            className="w-72 rounded-md shadow mt-6"
-          />
-        </div>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="rounded-[1.25rem] border border-emerald-100 bg-white/80 p-4">
+                    <p className="text-sm font-semibold text-slate-900">Guided paths</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">Turn scattered videos into one focused learning route.</p>
+                  </div>
+                  <div className="rounded-[1.25rem] border border-emerald-100 bg-white/80 p-4">
+                    <p className="text-sm font-semibold text-slate-900">Visible progress</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">See what you've finished and what to tackle next.</p>
+                  </div>
+                  <div className="rounded-[1.25rem] border border-emerald-100 bg-white/80 p-4">
+                    <p className="text-sm font-semibold text-slate-900">Career-ready practice</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">Keep learning at home or alongside school with practice that feels useful.</p>
+                  </div>
+                </div>
 
-        {/* Right Section */}
-        <div className="w-full max-w-sm text-center space-y-4">
-          <Lottie
-            animationData={rocketAnimation}
-            loop
-            className="w-40 mx-auto"
-          />
+                <div className="hidden overflow-hidden rounded-[1.5rem] border border-emerald-100 bg-white shadow-[0_20px_50px_-30px_rgba(15,23,42,0.28)] lg:block">
+                  <img
+                    src={teamIllustration}
+                    alt="People using Arcoria"
+                    className="h-56 w-full object-cover"
+                  />
+                </div>
+              </div>
 
-          <div>
-            <h3 className="text-xl font-bold text-green-600 mb-1">
-              Start Learning Today!
-            </h3>
-            <p className="text-gray-600 text-sm">
-              Sign up or log in to explore curated tech paths and track your growth.
-            </p>
-          </div>
+              <div className="mx-auto w-full max-w-md self-center">
+                <div className="panel-card space-y-5">
+                  <div className="space-y-3 text-center">
+                    <Lottie
+                      animationData={rocketAnimation}
+                      loop
+                      className="mx-auto h-20 w-20"
+                    />
+                    <div className="space-y-2">
+                      <h2 className="text-2xl font-bold tracking-tight text-slate-950">
+                        Welcome back
+                      </h2>
+                      <p className="text-sm leading-6 text-slate-500">
+                        Sign in to open your dashboard, continue a path, and keep your momentum going.
+                      </p>
+                    </div>
+                  </div>
 
-          <div className="space-y-3 text-left">
-            <input
-              type="email"
-              placeholder="Email"
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-300"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-300"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <button
-              onClick={handleEmailLogin}
-              className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
-            >
-              Sign In
-            </button>
-            <button
-              onClick={handleGoogleSignIn}
-              className="w-full border border-green-600 text-green-700 py-2 rounded hover:bg-green-100 transition"
-            >
-              Sign In with Google
-            </button>
+                  <div className="space-y-3">
+                    <input
+                      type="email"
+                      placeholder="Email"
+                      className="app-input"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <input
+                      type="password"
+                      placeholder="Password"
+                      className="app-input"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <button
+                      onClick={handleEmailLogin}
+                      className="btn-primary w-full hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-[0_18px_38px_-16px_rgba(22,163,74,0.9)] active:translate-y-0 active:scale-[0.99]"
+                    >
+                      Sign In
+                    </button>
+                    <button
+                      onClick={handleGoogleSignIn}
+                      className="btn-secondary w-full hover:-translate-y-0.5 hover:scale-[1.01] hover:border-emerald-300 hover:shadow-[0_16px_34px_-20px_rgba(15,23,42,0.35)] active:translate-y-0 active:scale-[0.99]"
+                    >
+                      Sign In with Google
+                    </button>
 
-            {loginError && <p className="text-red-600 text-sm">{loginError}</p>}
-            {resetPrompt && (
-              <p className="text-sm mt-1">
-                <button
-                  onClick={handlePasswordReset}
-                  className="text-green-600 underline hover:text-green-800"
-                >
-                  {resetPrompt}
-                </button>
-              </p>
-            )}
+                    {loginError && <p className="text-sm font-medium text-rose-600">{loginError}</p>}
+                    <button
+                      onClick={handlePasswordReset}
+                      className="text-sm font-medium text-emerald-700 underline underline-offset-4 hover:text-emerald-800"
+                    >
+                      Forgot Password?
+                    </button>
+                    {resetMessage && <p className="text-sm font-medium text-emerald-700">{resetMessage}</p>}
+                    {resetError && <p className="text-sm font-medium text-rose-600">{resetError}</p>}
+                  </div>
+                </div>
+
+                <div className="mt-4 rounded-[1.25rem] border border-emerald-100 bg-white/80 px-5 py-4 text-center shadow-sm">
+                  <p className="text-sm font-semibold text-slate-900">New to Arcoria?</p>
+                  <p className="mt-1 text-sm leading-6 text-slate-600">
+                    Create an account to save progress and keep your learning in one place.
+                  </p>
+                  <button
+                    onClick={() => setShowSignUp(true)}
+                    className="btn-secondary mt-4 w-full hover:-translate-y-0.5 hover:scale-[1.01] hover:border-emerald-300 hover:shadow-[0_16px_34px_-20px_rgba(15,23,42,0.35)] active:translate-y-0 active:scale-[0.99]"
+                  >
+                    Create Your Account
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -146,13 +189,3 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
-
-
-
-
-
-
-
-
-
-

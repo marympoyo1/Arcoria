@@ -1,38 +1,35 @@
-// src/components/Navbar.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
 
 const Navbar = ({ isLoggedIn, onLogout }) => {
   return (
-    <nav className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto flex justify-between items-center">
-        {/* Logo */}
+    <nav className="sticky top-0 z-50 border-b border-white/70 bg-white/82 backdrop-blur-xl">
+      <div className="page-shell flex items-center justify-between py-4">
         <Link
-          to="/"
-          className="text-2xl font-extrabold text-green-600 hover:text-green-700 transition-colors duration-200"
+          to={isLoggedIn ? "/dashboard" : "/"}
+          className="text-lg font-semibold tracking-tight text-slate-950 hover:text-emerald-800"
         >
           Arcoria
         </Link>
 
-        {/* Navigation */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-3">
           {isLoggedIn ? (
             <>
               <Link
                 to="/dashboard"
-                className="text-sm text-gray-700 hover:text-gray-900 transition-colors duration-200"
+                className="rounded-full px-3 py-2 text-sm font-medium text-slate-600 hover:bg-emerald-50 hover:text-slate-900"
               >
                 Dashboard
               </Link>
               <Link
                 to="/choose-skill"
-                className="text-sm text-gray-700 hover:text-gray-900 transition-colors duration-200"
+                className="rounded-full px-3 py-2 text-sm font-medium text-slate-600 hover:bg-emerald-50 hover:text-slate-900"
               >
                 Choose Skill
               </Link>
               <button
                 onClick={onLogout}
-                className="text-sm bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors duration-200"
+                className="btn-primary px-4 py-2.5 text-sm"
               >
                 Logout
               </button>
@@ -41,15 +38,15 @@ const Navbar = ({ isLoggedIn, onLogout }) => {
             <>
               <Link
                 to="/login"
-                className="text-sm px-4 py-2 rounded border border-green-600 text-green-600 hover:bg-green-100 hover:border-green-700 hover:text-green-700 transition-colors duration-200"
+                className="hidden sm:inline-flex btn-muted px-4 py-2.5 text-sm"
               >
                 Login
               </Link>
               <Link
                 to="/login"
-                className="text-sm bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors duration-200"
+                className="btn-primary px-4 py-2.5 text-sm"
               >
-                Sign Up
+                Get Started
               </Link>
             </>
           )}
@@ -60,19 +57,3 @@ const Navbar = ({ isLoggedIn, onLogout }) => {
 };
 
 export default Navbar;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

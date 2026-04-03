@@ -1,132 +1,161 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { auth, db } from '../firebaseConfig';
-import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
-import { onAuthStateChanged } from 'firebase/auth';
-import CourseCard from '../components/CourseCard';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import LessonCard from '../components/LessonCard';
+import { fetchLearningPath } from '../lib/api';
+import { getCompletedLessons, toggleLessonComplete } from '../utils/progressStorage';
+import PageHeader from '../components/PageHeader';
+import AppToast from '../components/AppToast';
+import StatePanel from '../components/StatePanel';
 
 const LearningPath = () => {
-  const location = useLocation();
   const navigate = useNavigate();
-  const params = new URLSearchParams(location.search);
-  const skill = params.get('skill');
-
-  const [completedCourses, setCompletedCourses] = useState([]);
-  const [courses, setCourses] = useState([]);
+  const { id } = useParams();
+  const [learningPath, setLearningPath] = useState(null);
+  const [completedLessons, setCompletedLessons] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [toastMessage, setToastMessage] = useState('');
 
   useEffect(() => {
-    const fetchCourses = async () => {
+    const loadPath = async () => {
+      if (!id) {
+        setError('This learning path link is missing an id.');
+        setLoading(false);
+        return;
+      }
+
       try {
-        const querySnapshot = await getDocs(collection(db, 'courses'));
-        const allCourses = querySnapshot.docs.map((doc) => doc.data());
-        const filtered = skill
-          ? allCourses.filter((course) => course.skill === skill)
-          : allCourses;
-        setCourses(filtered);
-      } catch (error) {
-        console.error('Error fetching courses:', error);
+        setLoading(true);
+        setError('');
+        const pathData = await fetchLearningPath(id);
+        setLearningPath(pathData);
+        setCompletedLessons(getCompletedLessons(pathData.id));
+      } catch (err) {
+        console.error('Failed to load learning path:', err);
+        setError('This learning path is having trouble loading right now.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCourses();
-  }, [skill]);
+    loadPath();
+  }, [id]);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (!user) return;
-      const userDocRef = doc(db, 'userProgress', user.uid);
-      const userDoc = await getDoc(userDocRef);
+    if (!toastMessage) return undefined;
 
-      if (userDoc.exists()) {
-        const data = userDoc.data();
-        setCompletedCourses(data.completedCourses || []);
-      }
-    });
+    const timeoutId = window.setTimeout(() => {
+      setToastMessage('');
+    }, 2400);
 
-    return () => unsubscribe();
-  }, []);
+    return () => window.clearTimeout(timeoutId);
+  }, [toastMessage]);
 
-  const handleStartCourse = (course) => {
-    navigate('/course-detail', { state: { course } });
-  };
+  const progressPercent = useMemo(() => {
+    if (!learningPath?.lessons?.length) return 0;
+    return Math.round((completedLessons.length / learningPath.lessons.length) * 100);
+  }, [completedLessons, learningPath]);
 
-  const handleMarkComplete = (courseTitle, isNowComplete) => {
-    setCompletedCourses((prev) =>
-      isNowComplete
-        ? [...prev, courseTitle]
-        : prev.filter((title) => title !== courseTitle)
+  const nextLessonId = useMemo(() => {
+    if (!learningPath?.lessons?.length) return null;
+    return learningPath.lessons.find((lesson) => !completedLessons.includes(lesson.id))?.id || null;
+  }, [completedLessons, learningPath]);
+
+  const handleToggleComplete = (lessonId) => {
+    if (!learningPath) return;
+    const lesson = learningPath.lessons.find((item) => item.id === lessonId);
+    const wasCompleted = completedLessons.includes(lessonId);
+    const updated = toggleLessonComplete(learningPath.id, lessonId);
+    setCompletedLessons(updated);
+    setToastMessage(
+      wasCompleted
+        ? 'Lesson marked incomplete.'
+        : `Nice work. ${lesson?.title || 'This lesson'} is complete.`
     );
   };
 
+  const handleOpenLesson = (lesson) => {
+    navigate(`/course-detail/${learningPath.id}/${lesson.id}`, {
+      state: { lesson, learningPath },
+    });
+  };
+
   return (
-    <div className="bg-gradient-to-b from-green-50 to-green-100 min-h-screen px-6 py-10">
-      <div className="max-w-6xl mx-auto">
-        {/* Go Back Button */}
-        <button
-          onClick={() => navigate('/choose-skill')}
-          className="mb-8 inline-block bg-white text-green-600 border border-green-300 px-4 py-2 rounded hover:bg-green-50 transition"
-        >
-          ← Go Back to Choose Skill
-        </button>
+    <div className="page-gradient min-h-screen px-6 py-10">
+      <AppToast message={toastMessage} />
 
-        <div className="mb-10">
-          <h2 className="text-4xl font-extrabold text-green-600 mb-2">
-            {skill ? `${skill} Learning Path` : 'Learning Path'}
-          </h2>
-          <p className="text-lg text-gray-600">
-            {skill
-              ? <>Explore your personalized journey to mastering <span className="font-medium">{skill}</span>.</>
-              : 'Select a skill to view its learning path.'}
-          </p>
-        </div>
+      <button
+        onClick={() => navigate('/choose-skill')}
+        className="floating-nav left-4 sm:left-6"
+      >
+        <span aria-hidden="true">←</span>
+        Back to Choose Skill
+      </button>
 
+      <div className="page-shell">
         {loading ? (
-          <p className="text-gray-500">Loading courses...</p>
-        ) : courses.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {courses.map((course, index) => (
-              <CourseCard
-                key={index}
-                title={course.title}
-                level={course.level}
-                description={course.description}
-                progress={course.progress || 0}
-                onStart={() => handleStartCourse(course)}
-                isCompleted={completedCourses.includes(course.title)}
-                onMarkComplete={handleMarkComplete}
-              />
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-500 mt-6">
-            No courses found for this skill. Please go back and choose a valid path.
-          </p>
-        )}
+          <StatePanel message="Loading your path..." />
+        ) : error ? (
+          <StatePanel message={error} tone="error" actionLabel="Try Again" onAction={() => window.location.reload()} />
+        ) : learningPath ? (
+          <>
+            <PageHeader
+              eyebrow="Learning Path"
+              title={learningPath.title}
+              description={learningPath.description}
+              supportingText={`${learningPath.outcome} Take it one lesson at a time and let the progress build naturally.`}
+              aside={(
+                <div className="rounded-[1.5rem] border border-emerald-100 bg-white p-5 shadow-sm">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700/80">Path Progress</p>
+                      <p className="mt-1 text-3xl font-black tracking-tight text-slate-950">{progressPercent}%</p>
+                    </div>
+                    <p className="text-sm leading-6 text-slate-500">
+                      {completedLessons.length} of {learningPath.lessons.length}
+                    </p>
+                  </div>
+                  <div className="mt-4 h-2 overflow-hidden rounded-full bg-emerald-100">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600"
+                      style={{ width: `${progressPercent}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+            />
+
+            <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+              {learningPath.lessons.map((lesson, index) => (
+                <LessonCard
+                  key={lesson.id}
+                  lesson={lesson}
+                  index={index}
+                  isCompleted={completedLessons.includes(lesson.id)}
+                  statusLabel={
+                    completedLessons.includes(lesson.id)
+                      ? 'Completed'
+                      : lesson.id === nextLessonId
+                        ? 'Up Next'
+                        : 'Coming Up'
+                  }
+                  statusTone={
+                    completedLessons.includes(lesson.id)
+                      ? 'success'
+                      : lesson.id === nextLessonId
+                        ? 'accent'
+                        : 'default'
+                  }
+                  onToggleComplete={() => handleToggleComplete(lesson.id)}
+                  onOpenLesson={() => handleOpenLesson(lesson)}
+                />
+              ))}
+            </div>
+          </>
+        ) : null}
       </div>
     </div>
   );
 };
 
 export default LearningPath;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  

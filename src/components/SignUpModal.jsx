@@ -1,4 +1,3 @@
-// src/components/SignUpModal.jsx
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
@@ -18,7 +17,7 @@ const SignUpModal = ({ onClose }) => {
       await createUserWithEmailAndPassword(auth, email, password);
       setSuccess('Account created successfully!');
       setTimeout(() => {
-        onClose(); // Close modal on success
+        onClose();
       }, 1500);
     } catch (err) {
       setError(err.message);
@@ -26,20 +25,24 @@ const SignUpModal = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-8 shadow-lg w-full max-w-md relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">
+      <div className="relative w-full max-w-md rounded-[1.75rem] border border-white/70 bg-white p-8 shadow-[0_30px_80px_-32px_rgba(15,23,42,0.45)]">
         <button
           onClick={onClose}
-          className="absolute top-3 right-4 text-gray-500 hover:text-red-500 text-xl font-bold"
+          className="absolute right-5 top-4 text-2xl font-bold text-slate-400 hover:text-slate-700"
         >
           ×
         </button>
-        <h2 className="text-2xl font-bold text-green-600 mb-4">Sign Up</h2>
+        <p className="eyebrow mb-3">Create your account</p>
+        <h2 className="mb-2 text-3xl font-black tracking-tight text-slate-950">Join Arcoria</h2>
+        <p className="mb-6 text-sm leading-6 text-slate-500">
+          Turn your YouTube learning into something more focused, trackable, and easier to stick with.
+        </p>
         <form onSubmit={handleSignUp} className="space-y-4">
           <input
             type="email"
             placeholder="Email"
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-300"
+            className="app-input"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -47,18 +50,21 @@ const SignUpModal = ({ onClose }) => {
           <input
             type="password"
             placeholder="Password"
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-300"
+            className="app-input"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          {error && <p className="text-red-600 text-sm">{error}</p>}
-          {success && <p className="text-green-600 text-sm">{success}</p>}
+          <p className="text-xs leading-5 text-slate-500">
+            Create an account to save progress, follow a clearer path, and keep growing from beginner to pro.
+          </p>
+          {error && <p className="text-sm font-medium text-rose-600">{error}</p>}
+          {success && <p className="text-sm font-medium text-emerald-600">{success}</p>}
           <button
             type="submit"
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full transition"
+            className="btn-primary w-full"
           >
-            Create Account
+            Create My Account
           </button>
         </form>
       </div>

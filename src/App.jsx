@@ -7,33 +7,22 @@ import Navbar from './components/Navbar';
 import LoginPage from './components/LoginPage';
 import ChooseSkill from './pages/ChooseSkill';
 import CourseDetail from './pages/CourseDetail';
-import LearnMore from './pages/learnmore';
-import WelcomePage from './pages/WelcomePage'; // ✅ New page after login
-import { auth, db } from './firebaseConfig';
+import LearnMore from './pages/LearnMore';
+import WelcomePage from './pages/WelcomePage';
+import StatePanel from './components/StatePanel';
+import { auth } from './firebaseConfig';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setIsLoggedIn(!!user);
+      setAuthLoading(false);
     });
     return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    const testFirestoreConnection = async () => {
-      const testDocRef = doc(db, 'test', 'demo');
-      try {
-        const snapshot = await getDoc(testDocRef);
-        console.log('✅ Firestore connected. Test doc exists:', snapshot.exists());
-      } catch (error) {
-        console.error('❌ Firestore connection error:', error.message);
-      }
-    };
-    testFirestoreConnection();
   }, []);
 
   const handleLogout = () => {
@@ -43,41 +32,31 @@ function App() {
   return (
     <Router>
       <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} onLogout={handleLogout} />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<LoginPage setIsLoggedIn={setIsLoggedIn} />} />
-        <Route path="/learn-more" element={<LearnMore />} />
-        {isLoggedIn ? (
-          <>
-            <Route path="/welcome" element={<WelcomePage />} /> {/* ✅ new redirect page */}
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/learning-paths" element={<LearningPath />} />
-            <Route path="/choose-skill" element={<ChooseSkill />} />
-            <Route path="/course-detail" element={<CourseDetail />} />
-            <Route path="*" element={<Navigate to="/welcome" />} />
-          </>
-        ) : (
-          <Route path="*" element={<Navigate to="/login" />} />
-        )}
-      </Routes>
+      {authLoading ? (
+        <div className="page-gradient flex min-h-screen items-center justify-center px-6 py-10">
+          <StatePanel message="Getting Arcoria ready for you..." />
+        </div>
+      ) : (
+        <Routes>
+          <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <Home />} />
+          <Route path="/login" element={<LoginPage setIsLoggedIn={setIsLoggedIn} />} />
+          <Route path="/learn-more" element={<LearnMore />} />
+          {isLoggedIn ? (
+            <>
+              <Route path="/welcome" element={<WelcomePage />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/learning-paths/:id" element={<LearningPath />} />
+              <Route path="/choose-skill" element={<ChooseSkill />} />
+              <Route path="/course-detail/:pathId/:lessonId" element={<CourseDetail />} />
+              <Route path="*" element={<Navigate to="/welcome" />} />
+            </>
+          ) : (
+            <Route path="*" element={<Navigate to="/login" />} />
+          )}
+        </Routes>
+      )}
     </Router>
   );
 }
 
 export default App;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

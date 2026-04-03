@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import { auth, googleProvider } from "../firebaseConfig";
 import { signInWithPopup, sendPasswordResetEmail } from "firebase/auth";
 import Lottie from "lottie-react";
-import devAnimation from "../assets/lottie/dev-animation.json"; // download from LottieFiles
-
+import devAnimation from "../assets/lottie/dev-animation.json";
 import SignUpModal from "./SignUpModal";
 
 function Auth({ onAuthChange }) {
   const [email, setEmail] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [resetMsg, setResetMsg] = useState("");
+  const [resetMessage, setResetMessage] = useState("");
+  const [resetError, setResetError] = useState("");
 
   const handleGoogleSignIn = () => {
     signInWithPopup(auth, googleProvider)
@@ -23,49 +23,57 @@ function Auth({ onAuthChange }) {
   };
 
   const handlePasswordReset = async () => {
+    setResetMessage("");
+    setResetError("");
+
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail) {
+      setResetError("Enter your email address first so we can send the reset link.");
+      return;
+    }
+
     try {
-      await sendPasswordResetEmail(auth, email);
-      setResetMsg("Password reset email sent!");
+      await sendPasswordResetEmail(auth, trimmedEmail);
+      setResetMessage(`Password reset email sent to ${trimmedEmail}.`);
     } catch (err) {
-      setResetMsg("Enter a valid email first.");
+      console.error("Password reset error:", err);
+      setResetError("We couldn't send the reset email. Double-check the email address and try again.");
     }
   };
 
   return (
-    <div className="bg-green-50 min-h-screen px-6 py-10">
-      {/* Navbar */}
-      <div className="flex justify-between items-center mb-12 px-4">
-        <h1 className="text-2xl font-bold text-green-600">Arcoria</h1>
+    <div className="page-gradient min-h-screen px-6 py-10">
+      <div className="page-shell mb-12 flex items-center justify-between">
+        <h1 className="text-xl font-semibold tracking-tight text-emerald-700">Arcoria</h1>
         <div className="space-x-3">
           <button
             onClick={handleGoogleSignIn}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+            className="btn-primary px-4 py-2.5"
           >
             Sign In
           </button>
           <button
             onClick={() => setShowModal(true)}
-            className="border border-green-600 text-green-600 px-4 py-2 rounded hover:bg-green-100"
+            className="btn-secondary px-4 py-2.5"
           >
             Sign Up
           </button>
         </div>
       </div>
 
-      {/* Body */}
-      <div className="flex flex-col lg:flex-row items-center justify-center gap-12 max-w-6xl mx-auto">
-        {/* Info + Lottie */}
-        <div className="max-w-md text-left space-y-4">
-          <h2 className="text-4xl font-extrabold text-green-600">
-            Welcome to <span className="text-gray-900">Arcoria</span>
+      <div className="page-shell flex flex-col items-center justify-center gap-12 lg:flex-row">
+        <div className="max-w-md space-y-4 text-left">
+          <h2 className="text-4xl font-extrabold text-slate-950">
+            Welcome to <span className="text-emerald-700">Arcoria</span>
           </h2>
-          <p className="text-gray-700 text-lg">
-            Learn the skills you need to level up in tech. Get curated YouTube tutorials, track progress, and follow roadmaps built for beginners.
+          <p className="text-lg text-slate-600">
+            A cleaner way to learn with YouTube, keep your progress in one place, and build skills with more confidence.
           </p>
-          <ul className="text-sm text-gray-600 space-y-2">
-            <li>✅ Track your progress in real-time</li>
-            <li>👨‍💻 Video tutorials powered by YouTube</li>
-            <li>🚀 Skill-based learning paths</li>
+          <ul className="space-y-2 text-sm text-slate-600">
+            <li>Keep your learning journey organized in one place</li>
+            <li>Follow curated lesson tracks that are easier to stick with</li>
+            <li>Build practical skills at home, on your own schedule, or alongside school</li>
           </ul>
         </div>
 
@@ -74,13 +82,12 @@ function Auth({ onAuthChange }) {
         </div>
       </div>
 
-      {/* Password Reset */}
-      <div className="max-w-md mx-auto mt-10">
-        <div className="bg-white shadow-md rounded p-6">
-          <h3 className="text-lg font-bold text-gray-800 mb-2">Sign in to Arcoria</h3>
+      <div className="mx-auto mt-10 max-w-md">
+        <div className="panel-card">
+          <h3 className="mb-2 text-lg font-bold text-slate-900">Sign in to Arcoria</h3>
           <button
             onClick={handleGoogleSignIn}
-            className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 mb-4"
+            className="btn-primary mb-4 w-full"
           >
             Sign in with Google
           </button>
@@ -90,27 +97,22 @@ function Auth({ onAuthChange }) {
             placeholder="Enter email for password reset"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3 py-2 border rounded mb-2"
+            className="app-input mb-2"
           />
           <button
             onClick={handlePasswordReset}
-            className="text-green-600 text-sm hover:underline"
+            className="text-sm text-emerald-700 hover:underline"
           >
             Forgot Password?
           </button>
-          {resetMsg && <p className="text-xs text-gray-500 mt-2">{resetMsg}</p>}
+          {resetMessage && <p className="mt-2 text-xs font-medium text-emerald-700">{resetMessage}</p>}
+          {resetError && <p className="mt-2 text-xs font-medium text-rose-600">{resetError}</p>}
         </div>
       </div>
 
-      {/* Sign Up Modal */}
       {showModal && <SignUpModal onClose={() => setShowModal(false)} />}
     </div>
   );
 }
 
 export default Auth;
-
-
-
-
-  
